@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def hann_window(n: int):
     window = np.sin(np.pi * np.arange(n) / n) ** 2
     return window
