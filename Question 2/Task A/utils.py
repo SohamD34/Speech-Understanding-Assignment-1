@@ -1,8 +1,29 @@
 import os
+import numpy as np
+import pandas as pd
 import librosa
-import shutil
+import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+import torchaudio
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
 from pynvml import *
 import psutil
+import shutil
+from scipy.signal import stft
+
+os.environ["TORCH_LOGS"] = ""
+
+import warnings
+warnings.filterwarnings('ignore')
+
+import torch._dynamo
+torch._dynamo.config.suppress_errors = True
+
+import logging
+logging.getLogger("torch._dynamo").setLevel(logging.ERROR)
+
 
 
 def import_audio_files(folder_path, folds, metadata):
@@ -50,3 +71,43 @@ def print_utilization():
 def zip_folder(folder_path, output_zip):
     shutil.make_archive(output_zip, 'zip', folder_path)
     print(f"Folder '{folder_path}' successfully zipped as '{output_zip}.zip'.")
+
+
+
+def plot_all_accuracies(model_list, hann_train_accuracies, hann_val_accuracies, hamming_train_accuracies, hamming_val_accuracies, rect_train_accuracies, rect_val_accuracies):
+
+    x = [2*i+1 for i in range(len(model_list))]
+    plt.figure(figsize=(16,5))
+    plt.bar([i-0.25 for i in x], hann_train_accuracies, label='Train')
+    plt.bar([i+0.25 for i in x], hann_val_accuracies, label='Valid')
+    plt.xticks(x,model_list)
+    plt.xlabel('Models -->')
+    plt.ylabel('Accuracy -->')
+    plt.title('Hann Window Accuracy Score')
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+    x = [2*i+1 for i in range(len(model_list))]
+    plt.figure(figsize=(16,5))
+    plt.bar([i-0.25 for i in x], hamming_train_accuracies, label='Train')
+    plt.bar([i+0.25 for i in x], hamming_val_accuracies, label='Valid')
+    plt.xticks(x,model_list)
+    plt.xlabel('Models -->')
+    plt.ylabel('Accuracy -->')
+    plt.title('Hamming Window Accuracy Score')
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+    x = [2*i+1 for i in range(len(model_list))]
+    plt.figure(figsize=(16,5))
+    plt.bar([i-0.25 for i in x], rect_train_accuracies, label='Train')
+    plt.bar([i+0.25 for i in x], rect_val_accuracies, label='Valid')
+    plt.xticks(x,model_list)
+    plt.xlabel('Models -->')
+    plt.ylabel('Accuracy -->')
+    plt.title('Rectangular Window Accuracy Score')
+    plt.grid()
+    plt.legend()
+    plt.show()
